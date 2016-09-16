@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Handheld PV2</string>
+    <string name="action_update">Actualizar Información</string>
+    <string name="action_update_message">Actualizando Información</string>
+
+    <string name="credential_id">Badge Id:</string>
+
+    <string name="credential_hint">Tap a badge or enter Id</string>
+    <string name="button_Check_text">Check</string>
+
+    <!-- PV2 -->
+    <string name="door_id">PV2</string>
+    <string name="area_id">Jetty</string>
+    <string name="logEntry_id">EntryJetty</string>
+    <string name="logExit_id">ExitJetty</string>
+
+    <color name="check">#197F38</color>
+    <color name="warning">#FFCC00</color>
+    <color name="error">#FF3838</color>
+
+    <color name="red">#FF3838</color>
+    <color name="green">#11c147</color>
+    <color name="amber">#ff8330</color>
+    <color name="white">#ffffff</color>
+
+    <string name="textView_Personnel_text">Credencial:\r\nNombre:</string>
+    <string name="textView_PBIP_text">PBIP I: </string>
+    <string name="textView_HazardousGoods_text">Mercancías Peligrosas: </string>
+    <string name="textView_PortSecurity_text">Seguridad Portuaria: </string>
+    <string name="title_activity_personnel">Handheld PV2</string>
+    <string name="action_settings">Settings</string>
+    <string name="content_description">Portrait</string>
+</resources>
