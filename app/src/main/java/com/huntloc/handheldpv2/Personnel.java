@@ -1,9 +1,5 @@
 package com.huntloc.handheldpv2;
 
-import java.util.Date;
-
-import android.util.Log;
-
 public class Personnel {
 	private String internalCode;
 	private String printedCode;

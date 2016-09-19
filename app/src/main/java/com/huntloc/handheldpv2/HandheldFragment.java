@@ -2,7 +2,7 @@ package com.huntloc.handheldpv2;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -13,9 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import java.util.UUID;
-
 
 public class HandheldFragment extends Fragment {
 
