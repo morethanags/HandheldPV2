@@ -18,7 +18,7 @@ public class EntranceFragment extends Fragment implements SwipeRefreshLayout.OnR
     private OnEntranceFragmentInteractionListener mListener;
     private SwipeRefreshLayout swipeRefreshLayout;
     public EntranceFragment() {
-        // Required empty public constructor
+        
     }
 
 
