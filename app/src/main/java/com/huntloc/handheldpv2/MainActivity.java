@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOffscreenPageLimit(2);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
@@ -91,6 +92,17 @@ public class MainActivity extends AppCompatActivity implements
                     .show();
         }
         handleIntent(getIntent());
+
+        SharedPreferences settings = getSharedPreferences(
+                PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("door_id", "PV2");
+        editor.putString("logEntry_id", "EntryPV2");
+        editor.putString("descLogEntry_id", "Entrance");
+        editor.putString("logExit_id", "ExitPV2");
+        editor.putString("descLogExit_id", "Exit");
+        editor.commit();
+
     }
 
     private long getDec(byte[] bytes) {
@@ -126,11 +138,27 @@ public class MainActivity extends AppCompatActivity implements
                 byte[] id = tag.getId();
                 String code = getDec(id) + "";
                 Log.d("Internal Code", code);
-                HandheldFragment handheldFragment = ((HandheldFragment) mSectionsPagerAdapter.getItem(0));
-                if (handheldFragment != null) {
-                    SQLiteHelper db = new SQLiteHelper(
-                            this.getApplicationContext());
-                    handheldFragment.setCredentialId(db.getPersonnel(getDec(id)).getPrintedCode());
+                SQLiteHelper db = new SQLiteHelper(getApplicationContext());
+                Personnel personnel = db.getPersonnel(getDec(id));
+                if(personnel!=null){
+                    HandheldFragment handheldFragment = ((HandheldFragment) mSectionsPagerAdapter.getItem(0));
+                    if (handheldFragment != null) {
+                        handheldFragment.setCredentialId(personnel.getPrintedCode());
+                    }
+                }
+                else{
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                    alertDialogBuilder.setTitle("PV2 Access Control");
+                    alertDialogBuilder.setMessage("Badge no tiene acceso");
+                    alertDialogBuilder.setCancelable(false);
+                    alertDialogBuilder.setPositiveButton("Ok",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+                    alertDialogBuilder.create().show();
+
                 }
             }
         }
@@ -148,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements
         if (handheldFragment != null) {
             handheldFragment.setCredentialId("");
         }
+        Log.d("MainActivity","I'm back");
         return super.onNavigateUpFromChild(child);
     }
 
@@ -362,7 +391,7 @@ public class MainActivity extends AppCompatActivity implements
                     public void run() {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                                 MainActivity.this);
-                        alertDialogBuilder.setTitle("Handheld PV2");
+                        alertDialogBuilder.setTitle("PV2 Access Control");
                         alertDialogBuilder.setMessage("Descarga Completa");
                         alertDialogBuilder.setCancelable(false);
                         alertDialogBuilder.setPositiveButton("Ok",

@@ -1,6 +1,8 @@
 package com.huntloc.handheldpv2;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 
 import android.os.Bundle;
@@ -76,12 +78,32 @@ public class HandheldFragment extends Fragment {
     }
     private void sendRequest() {
         Log.d("Printed Code", mCredentialId.getText().toString());
-        Intent intent = new Intent(getActivity(),
-                PersonnelActivity.class);
-        intent.putExtra(PERSONNEL_MESSAGE, mCredentialId.getText().toString());
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        startActivity(intent);
-        clearCredentialId();
+
+        SQLiteHelper db = new SQLiteHelper(getContext());
+        Personnel personnel = db.getPersonnel(mCredentialId.getText().toString());
+        if(personnel!=null){
+            Intent intent = new Intent(getActivity(),
+                    PersonnelActivity.class);
+            intent.putExtra(PERSONNEL_MESSAGE, mCredentialId.getText().toString());
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            startActivity(intent);
+            clearCredentialId();
+        }
+        else{
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle("PV2 Access Control");
+            alertDialogBuilder.setMessage("Badge no tiene acceso");
+            alertDialogBuilder.setCancelable(false);
+            alertDialogBuilder.setPositiveButton("Ok",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            clearCredentialId();
+                            dialog.cancel();
+                        }
+                    });
+            alertDialogBuilder.create().show();
+        }
+
     }
     @Override
     public void onAttach(Context context) {

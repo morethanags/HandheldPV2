@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.util.Base64;
 import android.util.Log;
@@ -15,8 +16,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -30,8 +34,11 @@ public class PersonnelFragment extends Fragment {
     TextView textView_Personnel;
     TextView textView_PBIP_date, textView_HazardousGoods_date,
             textView_PortSecurity_date;
-     ImageView imageView_Portrait;
+    ImageView imageView_Portrait;
     ImageView imageView_PBIP, imageView_HazardousGoods, imageView_PortSecurity;
+    LinearLayout bandPBIPColor;
+    TextView textView_PBIP_Color;
+    Button buttonEntrance, buttonExit;
     public PersonnelFragment() {
         // Required empty public constructor
     }
@@ -125,6 +132,8 @@ public class PersonnelFragment extends Fragment {
 
             if(personnel.getPBIPCode()!=null){
                 outputData += "\r\nNúmero Tarjeta PBIP: " + personnel.getPBIPCode() + "";
+                bandPBIPColor.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), personnel.getPBIPColorCode()));
+                //textView_PBIP_Color.setText(personnel.getPBIPColor());
                 imageView_Portrait.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), personnel.getPBIPColorCode()));
             }
 
@@ -146,19 +155,7 @@ public class PersonnelFragment extends Fragment {
             }
 
         } else {
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                    getActivity());
-            alertDialogBuilder.setTitle("Jetty Access Control");
-            alertDialogBuilder.setMessage("Badge no tiene acceso");
-            alertDialogBuilder.setCancelable(false);
-            alertDialogBuilder.setPositiveButton("Ok",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                        }
-                    });
-            alertDialogBuilder.create().show();
-            textView_Personnel.setText("Credencial:\r\nNombre:");
+            /*textView_Personnel.setText("Credencial:\r\nNombre:");
             imageView_Portrait.setImageBitmap(null);
 
             textView_PBIP_date.setText("");
@@ -166,7 +163,7 @@ public class PersonnelFragment extends Fragment {
             textView_HazardousGoods_date.setText("");
             imageView_HazardousGoods.setImageBitmap(null);
             textView_PortSecurity_date.setText("");
-            imageView_PortSecurity.setImageBitmap(null);
+            imageView_PortSecurity.setImageBitmap(null);*/
         }
     }
     @Override
@@ -188,12 +185,46 @@ public class PersonnelFragment extends Fragment {
         imageView_HazardousGoods = (ImageView) view.findViewById(R.id.imageView_HazardousGoods);
         imageView_PortSecurity = (ImageView) view.findViewById(R.id.imageView_PortSecurity);
 
+        bandPBIPColor = (LinearLayout) view.findViewById(R.id.bandPBIPColor);
+        textView_PBIP_Color = (TextView)view.findViewById(R.id.textView_PBIP_Color);
+
         SQLiteHelper db = new SQLiteHelper(getContext());
-        showPersonnel(db.getPersonnel(response));
+        final Personnel personnel = db.getPersonnel(response);
+        showPersonnel(personnel);
+
+        buttonEntrance = (Button) view.findViewById(R.id.button_Entrance);
+        buttonEntrance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String door = getContext().getSharedPreferences(MainActivity.PREFS_NAME, 0).getString("door_id", "PV2");
+                String log = getContext().getSharedPreferences(MainActivity.PREFS_NAME, 0).getString("logEntry_id", "EntryPV2");
+                String desc = getContext().getSharedPreferences(MainActivity.PREFS_NAME, 0).getString("descLogEntry_id", "Entrance");
+                addJournal(personnel.getPrintedCode(), personnel.getName(), door, log, desc );
+            }
+        });
+        buttonExit = (Button) view.findViewById(R.id.button_Exit);
+        buttonExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String door = getContext().getSharedPreferences(MainActivity.PREFS_NAME, 0).getString("door_id", "PV2");
+                String log = getContext().getSharedPreferences(MainActivity.PREFS_NAME, 0).getString("logExit_id", "ExitPV2");
+                String desc = getContext().getSharedPreferences(MainActivity.PREFS_NAME, 0).getString("descLogExit_id", "Exit");
+                addJournal(personnel.getPrintedCode(), personnel.getName(), door, log, desc );
+            }
+        });
 
      return view;
     }
-
+    private void addJournal(String credential, String personnel, String door, String log, String descLog) {
+        java.util.Date date = new java.util.Date();
+        SQLiteHelper db = new SQLiteHelper(getContext());
+        db.addJournal(new Journal(credential, log, door, date.getTime(), personnel, descLog));
+        String descLog1 =  log.contains("Entry") ? "Entrada" : "Salida";
+        Toast.makeText(getActivity(), "1 "+descLog1+" Registrada", Toast.LENGTH_LONG)
+                .show();
+        NavUtils.navigateUpFromSameTask(getActivity());
+        //getActivity().finish();
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -211,7 +242,6 @@ public class PersonnelFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
-
 
     public interface OnPersonnelFragmentInteractionListener {
         void onPersonnelFragmentInteraction();

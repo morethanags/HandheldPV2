@@ -6,9 +6,18 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 public class ExitFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
@@ -39,7 +48,7 @@ public class ExitFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         swipeRefreshLayout = (SwipeRefreshLayout) view
                 .findViewById(R.id.list_Exit_Layout);
         swipeRefreshLayout.setOnRefreshListener(this);
-        updateExits();
+        //updateExits();
         return view;
     }
     @Override
@@ -56,8 +65,35 @@ public class ExitFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                     + " must implement OnExitFragmentInteractionListener");
         }
     }
-    private void updateExits() {
+    public void updateExits() {
+        SQLiteHelper db = new SQLiteHelper(getContext());
+        List<Journal> records = db.getJournal(getContext().getSharedPreferences(MainActivity.PREFS_NAME, 0).getString("logExit_id", "ExitPV2"));
+        ArrayList<HashMap<String, String>> list = new ArrayList<HashMap<String, String>>();
+        for (int i = 0; i < records.size(); i++) {
+            HashMap<String, String> item = new HashMap<String, String>();
+            item.put("personnel", records.get(i).getPersonnel() + "("
+                    + records.get(i).getCredential() + ")");
+            item.put("log", records.get(i).getDescLog());
+            item.put("door", records.get(i).getDoor());
+            String dateString = DateFormat.format("E, MMM dd, h:mm aa",
+                    new Date(records.get(i).getTime())).toString();
+            item.put("time", dateString);
+            list.add(item);
+        }
+        ListView recordsListView = null;
+        recordsListView = (ListView) getView().findViewById(R.id.list_Exit);
+
+        String[] columns = new String[] { "personnel", "time", "door", "log" };
+        int[] renderTo = new int[] { R.id.personnel, R.id.time, R.id.door, R.id.log };
+
+        ListAdapter listAdapter = new SimpleAdapter(getContext(), list,
+                R.layout.journallog_list_row, columns, renderTo);
+
+        recordsListView.setAdapter(listAdapter);
+
         swipeRefreshLayout.setRefreshing(false);
+
+
     }
     @Override
     public void onDetach() {

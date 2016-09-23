@@ -30,4 +30,8 @@
     <string name="title_activity_personnel">Handheld PV2</string>
     <string name="action_settings">Settings</string>
     <string name="content_description">Portrait</string>
+    <string name="textView_PBIP_Color">BLANCO</string>
+    <string name="button_Entrance_text">Entrada</string>
+    <string name="button_Exit_text">Salida</string>
+
 </resources>
