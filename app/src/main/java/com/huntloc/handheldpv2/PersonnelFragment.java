@@ -218,6 +218,7 @@ public class PersonnelFragment extends Fragment {
     private void addJournal(String credential, String personnel, String door, String log, String descLog) {
         java.util.Date date = new java.util.Date();
         SQLiteHelper db = new SQLiteHelper(getContext());
+        //Log.d("Time", date.getTime()+"");
         db.addJournal(new Journal(credential, log, door, date.getTime(), personnel, descLog));
         String descLog1 =  log.contains("Entry") ? "Entrada" : "Salida";
         Toast.makeText(getActivity(), "1 "+descLog1+" Registrada", Toast.LENGTH_LONG)

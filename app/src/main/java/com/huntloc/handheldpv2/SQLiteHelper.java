@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -93,9 +94,9 @@ public class SQLiteHelper extends SQLiteOpenHelper{
         //Log.d("query", query);
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
+        Log.d("select personnel count", cursor.getCount()+"");
 
         if (cursor.moveToFirst()) {
-
             personnel = new Personnel(cursor.getString(0),
                     cursor.getString(1),
                     cursor.getString(2),
@@ -118,6 +119,7 @@ public class SQLiteHelper extends SQLiteOpenHelper{
         //Log.d("query", query);
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
+        Log.d("select personnel count", cursor.getCount()+"");
 
         if (cursor.moveToFirst()) {
             personnel = new Personnel(cursor.getString(0),
@@ -154,7 +156,7 @@ public class SQLiteHelper extends SQLiteOpenHelper{
     }
     public List<Journal> getJournal(String log) {
         List<Journal> toReturn = new LinkedList<>();
-        String query = "SELECT  * FROM " + TABLE_JOURNAL + " where "+ KEY_SENT +" = 0 and " + KEY_LOG + "='"+log+"'";
+        String query = log!=null?"SELECT  * FROM " + TABLE_JOURNAL + " where "+ KEY_SENT +" = 0 and " + KEY_LOG + "='"+log+"'":"SELECT  * FROM " + TABLE_JOURNAL + " where "+ KEY_SENT +" = 0 ";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         Journal journal = null;
@@ -163,8 +165,9 @@ public class SQLiteHelper extends SQLiteOpenHelper{
                 journal = new Journal(cursor.getString(0),cursor.getString(1),cursor.getString(2),cursor.getString(3),Long.parseLong(cursor.getString(4)),cursor.getInt(5) == 1 ? true : false, cursor.getString(6), cursor.getString(7));
                 toReturn.add(journal);
             } while (cursor.moveToNext());
-            Log.d("getJournal("+log+")", toReturn.size()+" Journal");
+
         }
+        //Log.d("getJournal("+log+")", toReturn.size()+" Journal");
         db.close();
         return toReturn;
     }

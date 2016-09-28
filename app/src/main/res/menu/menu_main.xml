@@ -7,4 +7,16 @@
         android:orderInCategory="0"
         android:title="@string/action_update"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_send"
+        android:title="@string/action_send"
+        android:orderInCategory="1"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_delete"
+        android:title="@string/action_delete"
+        android:orderInCategory="2"
+        app:showAsAction="never"/>
+
 </menu>

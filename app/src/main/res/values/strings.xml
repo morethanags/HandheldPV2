@@ -3,6 +3,21 @@
     <string name="action_update">Actualizar Información</string>
     <string name="action_update_message">Actualizando Información</string>
 
+    <string name="action_send">Enviar Registros</string>
+    <string name="action_send_message">Enviando Registros</string>
+
+    <string name="action_delete">Eliminar Registros</string>
+    <string name="action_delete_message">Eliminando Registros</string>
+
+    <string name="dialog_delete_title">PV2 Access Control</string>
+    <string name="dialog_delete_message">Todos los registros serán eliminados!</string>
+    <string name="dialog_delete_delete">Eliminar</string>
+    <string name="dialog_delete_cancel">Cancelar</string>
+
+    <string name="dialog_update_title">PV2 Access Control</string>
+    <string name="dialog_update_message">Descarga Completa</string>
+    <string name="dialog_update_ok">OK</string>
+
     <string name="credential_id">Badge Id:</string>
 
     <string name="credential_hint">Tap a badge or enter Id</string>

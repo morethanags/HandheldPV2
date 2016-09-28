@@ -3,6 +3,7 @@ package com.huntloc.handheldpv2;
 import android.content.Context;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 
@@ -12,16 +13,22 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+
 import java.util.Date;
+
 import android.text.format.DateFormat;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class EntranceFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
+public class EntranceFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private OnEntranceFragmentInteractionListener mListener;
     private SwipeRefreshLayout swipeRefreshLayout;
+    ListView entranceList = null;
+    ArrayList<HashMap<String, String>> list = null;
+
     public EntranceFragment() {
         // Required empty public constructor
     }
@@ -45,43 +52,53 @@ public class EntranceFragment extends Fragment implements SwipeRefreshLayout.OnR
         swipeRefreshLayout = (SwipeRefreshLayout) view
                 .findViewById(R.id.list_Entrance_Layout);
         swipeRefreshLayout.setOnRefreshListener(this);
-        //updateEntrances();
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                updateEntrances();
+            }
+        }, 1500);
         return view;
     }
+
     @Override
     public void onRefresh() {
         updateEntrances();
     }
 
     public void updateEntrances() {
-        SQLiteHelper db = new SQLiteHelper(getContext());
-        List<Journal> records = db.getJournal(getContext().getSharedPreferences(MainActivity.PREFS_NAME, 0).getString("logEntry_id", "EntryPV2"));
-        ArrayList<HashMap<String, String>> list = new ArrayList<HashMap<String, String>>();
-        for (int i = 0; i < records.size(); i++) {
-            HashMap<String, String> item = new HashMap<String, String>();
-            item.put("personnel", records.get(i).getPersonnel() + "("
-                    + records.get(i).getCredential() + ")");
-            item.put("log", records.get(i).getDescLog());
-            item.put("door", records.get(i).getDoor());
-            String dateString = DateFormat.format("E, MMM dd, h:mm aa",
-                    new Date(records.get(i).getTime())).toString();
-            item.put("time", dateString);
-            list.add(item);
+        try {
+            entranceList = (ListView) getView().findViewById(R.id.list_Entrance);
+        } catch (NullPointerException e) {
+            return;
         }
-        ListView recordsListView = null;
-        recordsListView = (ListView) getView().findViewById(R.id.list_Entrance);
+        try {
+            SQLiteHelper db = new SQLiteHelper(getContext());
+            List<Journal> records = db.getJournal(getContext().getSharedPreferences(MainActivity.PREFS_NAME, 0).getString("logEntry_id", "EntryPV2"));
+            list = new ArrayList<HashMap<String, String>>();
+            for (int i = 0; i < records.size(); i++) {
+                HashMap<String, String> item = new HashMap<String, String>();
+                item.put("personnel", records.get(i).getPersonnel() + "("
+                        + records.get(i).getCredential() + ")");
+                item.put("log", records.get(i).getDescLog());
+                item.put("door", records.get(i).getDoor());
+                String dateString = DateFormat.format("E, MMM dd, h:mm aa",
+                        new Date(records.get(i).getTime())).toString();
+                item.put("time", dateString);
+                list.add(item);
+            }
+            String[] columns = new String[]{"personnel", "time", "door", "log"};
+            int[] renderTo = new int[]{R.id.personnel, R.id.time, R.id.door, R.id.log};
 
-        String[] columns = new String[] { "personnel", "time", "door", "log" };
-        int[] renderTo = new int[] { R.id.personnel, R.id.time, R.id.door, R.id.log };
+            ListAdapter listAdapter = new SimpleAdapter(getContext(), list,
+                    R.layout.journallog_list_row, columns, renderTo);
 
-        ListAdapter listAdapter = new SimpleAdapter(getContext(), list,
-                R.layout.journallog_list_row, columns, renderTo);
-
-        recordsListView.setAdapter(listAdapter);
-
-        swipeRefreshLayout.setRefreshing(false);
-
+            entranceList.setAdapter(listAdapter);
+        } catch (Exception e) {
+        } finally {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

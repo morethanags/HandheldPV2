@@ -4,14 +4,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -40,10 +44,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements
-        HandheldFragment.OnHandheldFragmentInteractionListener, EntranceFragment.OnEntranceFragmentInteractionListener, ExitFragment.OnExitFragmentInteractionListener {
+        HandheldFragment.OnHandheldFragmentInteractionListener, EntranceFragment.OnEntranceFragmentInteractionListener, ExitFragment.OnExitFragmentInteractionListener
+         {
     public static final String MIME_TEXT_PLAIN = "text/plain";
     public static final String PREFS_NAME = "HandheldPV2PrefsFile";
     private static long back_pressed;
@@ -53,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private ViewPager mViewPager;
     private NfcAdapter mNfcAdapter;
+             private int journalCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements
         progress = new ProgressDialog(this);
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progress.setIndeterminate(true);
+        progress.setCancelable(false);
         progress.setProgressNumberFormat(null);
         progress.setProgressPercentFormat(null);
         progress.setCanceledOnTouchOutside(false);
@@ -183,12 +192,138 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_update) {
-            updatePersonnel();
-            return true;
+        switch (id){
+            case R.id.action_update:
+                updatePersonnel();
+                return true;
+            case R.id.action_send:
+                sendJournal();
+                return true;
+            case R.id.action_delete:
+                deleteJournal();
+                return true;
+            default:
+                break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    private void receiveJournal(int index){
+        //Log.d("Received", index+"");
+        progress.setMessage(getResources().getString(R.string.action_send_message) + " " + (index+1) + " de " + journalCount);
+        if (index == journalCount - 1) {
+            progress.dismiss();
+            updateJournal();
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+            alertDialogBuilder.setTitle("PV2 Access Control");
+            alertDialogBuilder.setMessage("Envío Completo");
+            alertDialogBuilder.setCancelable(false);
+            alertDialogBuilder.setPositiveButton("Ok",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+            alertDialogBuilder.create().show();
+        }
+    }
+
+    private  void sendJournal(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo[] netInfo = connectivityManager.getAllNetworkInfo();
+        for (NetworkInfo ni : netInfo) {
+            if (ni.getTypeName().equalsIgnoreCase("WIFI"))
+                if (!ni.isConnected()) {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                    alertDialogBuilder.setTitle("PV2 Access Control");
+                    alertDialogBuilder.setMessage("Red WiFi no Disponible");
+                    alertDialogBuilder.setCancelable(false);
+                    alertDialogBuilder.setPositiveButton("Ok",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                   dialog.cancel();
+                                }
+                            });
+                    alertDialogBuilder.create().show();
+                    return;
+                }
+        }
+
+        SQLiteHelper db = new SQLiteHelper(this.getApplicationContext());
+        List<Journal> journal = db.getJournal(null);
+        if (journal.size() > 0) {
+            journalCount = journal.size();
+            progress.setMessage(getResources().getString(
+                    R.string.action_send_message));
+            progress.show();
+            for (int i = 0; i < journal.size(); i++) {
+                String serverURL = getResources().getString(
+                        R.string.service_url)
+                        + "/JournalLogService/"
+                        + journal.get(i).getCredential()
+                        + "/"
+                        + journal.get(i).getLog()
+                        + "/"
+                        + journal.get(i).getTime()
+                        + "/"
+                        + journal.get(i).getGuid();
+                JournalTask journalTask = new JournalTask();
+                journalTask.execute(serverURL, i+"");
+                //Log.d("Time send",new Date(journal.get(i).getTime()).toString());
+                /*new Handler().postDelayed(new Runnable() {
+                    public void run() {
+                    }
+                }, 2000);*/
+
+                Log.d("Send", serverURL);
+            }
+        } else {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle("PV2 Access Control");
+            alertDialogBuilder.setMessage("No hay registros disponibles");
+            alertDialogBuilder.setCancelable(false);
+            alertDialogBuilder.setPositiveButton("Ok",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+            alertDialogBuilder.create().show();
+        }
+    }
+
+    private void deleteJournal() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.dialog_delete_message);
+        builder.setTitle(R.string.dialog_delete_title);
+        builder.setPositiveButton(R.string.dialog_delete_delete,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        SQLiteHelper db = new SQLiteHelper(
+                                MainActivity.this.getApplicationContext());
+                        db.deleteRecords();
+                        updateJournal();
+                    }
+                });
+        builder.setNegativeButton(R.string.dialog_delete_cancel,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.show();
+    }
+
+    private void updateJournal(){
+        EntranceFragment entranceFragment = ((EntranceFragment) mSectionsPagerAdapter.getItem(1));
+        if (entranceFragment != null) {
+            entranceFragment.updateEntrances();
+        }
+        ExitFragment exitFragment = ((ExitFragment) mSectionsPagerAdapter.getItem(2));
+        if (exitFragment != null) {
+            exitFragment.updateExits();
+        }
     }
 
     private void updatePersonnel() {
@@ -391,10 +526,10 @@ public class MainActivity extends AppCompatActivity implements
                     public void run() {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                                 MainActivity.this);
-                        alertDialogBuilder.setTitle("PV2 Access Control");
-                        alertDialogBuilder.setMessage("Descarga Completa");
+                        alertDialogBuilder.setTitle(R.string.dialog_update_title);
+                        alertDialogBuilder.setMessage(R.string.dialog_update_message);
                         alertDialogBuilder.setCancelable(false);
-                        alertDialogBuilder.setPositiveButton("Ok",
+                        alertDialogBuilder.setPositiveButton(R.string.dialog_update_ok,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,
                                                         int id) {
@@ -418,6 +553,74 @@ public class MainActivity extends AppCompatActivity implements
                 });
             } catch (Exception e) {
 
+            }
+        }
+    }
+
+    private class JournalTask extends
+            AsyncTask<String, String, String> {
+
+        HttpURLConnection urlConnection;
+        private String index;
+        @SuppressWarnings("unchecked")
+        protected String doInBackground(String... args) {
+           StringBuilder result = new StringBuilder();
+           try {
+                URL url = new URL(args[0]);
+                //Log.d("Journal URL", url.toString());
+                this.index = args[1];
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("POST");
+                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+            } catch (Exception e) {
+                Log.d(e.getClass().toString(), e.getMessage());
+                /*MainActivity.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                        alertDialogBuilder.setTitle("PV2 Access Control");
+                        alertDialogBuilder.setMessage("No se pudo conectar con CCURE");
+                        alertDialogBuilder.setCancelable(false);
+                        alertDialogBuilder.setPositiveButton("Ok",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+                        alertDialogBuilder.create().show();
+                    }
+                });*/
+            }
+            finally {
+                urlConnection.disconnect();
+            }
+            return result.toString();
+        }
+
+       protected void onProgressUpdate(String... _progress) {
+            MainActivity.this.receiveJournal(Integer.parseInt(_progress[0]));
+        }
+
+        protected void onPostExecute(String result) {
+            try {
+                JSONObject jsonResponse = new JSONObject(result);
+                String guid = jsonResponse.optString("guid");
+                String log  = jsonResponse.optString("log");
+                SQLiteHelper db = new SQLiteHelper(
+                        MainActivity.this.getApplicationContext());
+                Journal journal = new Journal(guid, null, null, null, 0, false,
+                        null, null);
+                db.updateJournal(journal);
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        publishProgress(index);
+                    }});
+            } catch (Exception e) {
+                Log.d(e.getClass().toString(), e.getMessage());
             }
         }
     }

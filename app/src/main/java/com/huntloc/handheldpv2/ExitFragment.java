@@ -3,6 +3,7 @@ package com.huntloc.handheldpv2;
 import android.content.Context;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 
@@ -19,11 +20,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-public class ExitFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
+public class ExitFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
 
     private OnExitFragmentInteractionListener mListener;
     private SwipeRefreshLayout swipeRefreshLayout;
+    ListView exitList = null;
+    ArrayList<HashMap<String, String>> list = null;
+
     public ExitFragment() {
         // Required empty public constructor
     }
@@ -48,13 +52,19 @@ public class ExitFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         swipeRefreshLayout = (SwipeRefreshLayout) view
                 .findViewById(R.id.list_Exit_Layout);
         swipeRefreshLayout.setOnRefreshListener(this);
-        //updateExits();
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                updateExits();
+            }
+        }, 1500);
         return view;
     }
+
     @Override
     public void onRefresh() {
         updateExits();
     }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -65,36 +75,42 @@ public class ExitFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                     + " must implement OnExitFragmentInteractionListener");
         }
     }
+
     public void updateExits() {
-        SQLiteHelper db = new SQLiteHelper(getContext());
-        List<Journal> records = db.getJournal(getContext().getSharedPreferences(MainActivity.PREFS_NAME, 0).getString("logExit_id", "ExitPV2"));
-        ArrayList<HashMap<String, String>> list = new ArrayList<HashMap<String, String>>();
-        for (int i = 0; i < records.size(); i++) {
-            HashMap<String, String> item = new HashMap<String, String>();
-            item.put("personnel", records.get(i).getPersonnel() + "("
-                    + records.get(i).getCredential() + ")");
-            item.put("log", records.get(i).getDescLog());
-            item.put("door", records.get(i).getDoor());
-            String dateString = DateFormat.format("E, MMM dd, h:mm aa",
-                    new Date(records.get(i).getTime())).toString();
-            item.put("time", dateString);
-            list.add(item);
+        try {
+            exitList = (ListView) getView().findViewById(R.id.list_Exit);
+        } catch (NullPointerException e) {
+            return;
         }
-        ListView recordsListView = null;
-        recordsListView = (ListView) getView().findViewById(R.id.list_Exit);
+        try {
+            SQLiteHelper db = new SQLiteHelper(getContext());
+            List<Journal> records = db.getJournal(getContext().getSharedPreferences(MainActivity.PREFS_NAME, 0).getString("logExit_id", "ExitPV2"));
+            list = new ArrayList<HashMap<String, String>>();
+            for (int i = 0; i < records.size(); i++) {
+                HashMap<String, String> item = new HashMap<String, String>();
+                item.put("personnel", records.get(i).getPersonnel() + "("
+                        + records.get(i).getCredential() + ")");
+                item.put("log", records.get(i).getDescLog());
+                item.put("door", records.get(i).getDoor());
+                String dateString = DateFormat.format("E, MMM dd, h:mm aa",
+                        new Date(records.get(i).getTime())).toString();
+                item.put("time", dateString);
+                list.add(item);
+            }
 
-        String[] columns = new String[] { "personnel", "time", "door", "log" };
-        int[] renderTo = new int[] { R.id.personnel, R.id.time, R.id.door, R.id.log };
+            String[] columns = new String[]{"personnel", "time", "door", "log"};
+            int[] renderTo = new int[]{R.id.personnel, R.id.time, R.id.door, R.id.log};
 
-        ListAdapter listAdapter = new SimpleAdapter(getContext(), list,
-                R.layout.journallog_list_row, columns, renderTo);
+            ListAdapter listAdapter = new SimpleAdapter(getContext(), list,
+                    R.layout.journallog_list_row, columns, renderTo);
 
-        recordsListView.setAdapter(listAdapter);
-
-        swipeRefreshLayout.setRefreshing(false);
-
-
+            exitList.setAdapter(listAdapter);
+        } catch (Exception e) {
+        } finally {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
+
     @Override
     public void onDetach() {
         super.onDetach();
