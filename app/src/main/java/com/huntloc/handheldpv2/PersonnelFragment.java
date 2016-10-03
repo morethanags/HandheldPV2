@@ -134,7 +134,7 @@ public class PersonnelFragment extends Fragment {
                 outputData += "\r\nNúmero Tarjeta PBIP: " + personnel.getPBIPCode() + "";
                 bandPBIPColor.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), personnel.getPBIPColorCode()));
                 //textView_PBIP_Color.setText(personnel.getPBIPColor());
-                imageView_Portrait.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), personnel.getPBIPColorCode()));
+                //imageView_Portrait.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), personnel.getPBIPColorCode()));
             }
 
             textView_Personnel.setText(outputData);
