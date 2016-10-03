@@ -9,6 +9,10 @@
     <string name="action_delete">Eliminar Registros</string>
     <string name="action_delete_message">Eliminando Registros</string>
 
+    <string name="action_sync">Actualizar Información</string>
+
+    <string name="action_completed">Actualización Completa</string>
+
     <string name="dialog_delete_title">PV2 Access Control</string>
     <string name="dialog_delete_message">Todos los registros serán eliminados!</string>
     <string name="dialog_delete_delete">Eliminar</string>

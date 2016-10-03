@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id){
-            case R.id.action_update:
+           /* case R.id.action_update:
                 updatePersonnel();
                 return true;
             case R.id.action_send:
@@ -201,6 +201,9 @@ public class MainActivity extends AppCompatActivity implements
                 return true;
             case R.id.action_delete:
                 deleteJournal();
+                return true;*/
+            case R.id.action_sync:
+                updatePersonnel();
                 return true;
             default:
                 break;
@@ -209,14 +212,11 @@ public class MainActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
     private void receiveJournal(int index){
-        //Log.d("Received", index+"");
-        progress.setMessage(getResources().getString(R.string.action_send_message) + " " + (index+1) + " de " + journalCount);
         if (index == journalCount - 1) {
             progress.dismiss();
-            updateJournal();
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
             alertDialogBuilder.setTitle("PV2 Access Control");
-            alertDialogBuilder.setMessage("Envío Completo");
+            alertDialogBuilder.setMessage(R.string.action_completed);
             alertDialogBuilder.setCancelable(false);
             alertDialogBuilder.setPositiveButton("Ok",
                     new DialogInterface.OnClickListener() {
@@ -225,6 +225,8 @@ public class MainActivity extends AppCompatActivity implements
                         }
                     });
             alertDialogBuilder.create().show();
+            deleteJournal();
+            refreshJournal();
         }
     }
 
@@ -269,12 +271,6 @@ public class MainActivity extends AppCompatActivity implements
                         + journal.get(i).getGuid();
                 JournalTask journalTask = new JournalTask();
                 journalTask.execute(serverURL, i+"");
-                //Log.d("Time send",new Date(journal.get(i).getTime()).toString());
-                /*new Handler().postDelayed(new Runnable() {
-                    public void run() {
-                    }
-                }, 2000);*/
-
                 Log.d("Send", serverURL);
             }
         } else {
@@ -293,7 +289,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void deleteJournal() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        SQLiteHelper db = new SQLiteHelper(
+                MainActivity.this.getApplicationContext());
+        db.deleteRecords();
+
+        /*AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.dialog_delete_message);
         builder.setTitle(R.string.dialog_delete_title);
         builder.setPositiveButton(R.string.dialog_delete_delete,
@@ -302,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements
                         SQLiteHelper db = new SQLiteHelper(
                                 MainActivity.this.getApplicationContext());
                         db.deleteRecords();
-                        updateJournal();
+                        refreshJournal();
                     }
                 });
         builder.setNegativeButton(R.string.dialog_delete_cancel,
@@ -312,10 +313,10 @@ public class MainActivity extends AppCompatActivity implements
                 });
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
-        dialog.show();
+        dialog.show();*/
     }
 
-    private void updateJournal(){
+    private void refreshJournal(){
         EntranceFragment entranceFragment = ((EntranceFragment) mSectionsPagerAdapter.getItem(1));
         if (entranceFragment != null) {
             entranceFragment.updateEntrances();
@@ -524,7 +525,7 @@ public class MainActivity extends AppCompatActivity implements
                 progress.dismiss();
                 MainActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        /*AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                                 MainActivity.this);
                         alertDialogBuilder.setTitle(R.string.dialog_update_title);
                         alertDialogBuilder.setMessage(R.string.dialog_update_message);
@@ -536,7 +537,7 @@ public class MainActivity extends AppCompatActivity implements
                                         dialog.cancel();
                                     }
                                 });
-                        alertDialogBuilder.create().show();
+                        alertDialogBuilder.create().show();*/
 
                         SimpleDateFormat newDateFormat = new SimpleDateFormat(
                                 "EEEE, d MMMM yyyy h:mm a");
@@ -549,6 +550,8 @@ public class MainActivity extends AppCompatActivity implements
                         editor.commit();
 
                         MainActivity.this.showLastUpdate();
+                        //Concatenate task
+                        MainActivity.this.sendJournal();
                     }
                 });
             } catch (Exception e) {
@@ -607,15 +610,15 @@ public class MainActivity extends AppCompatActivity implements
 
         protected void onPostExecute(String result) {
             try {
-                JSONObject jsonResponse = new JSONObject(result);
+                /*JSONObject jsonResponse = new JSONObject(result);
                 String guid = jsonResponse.optString("guid");
                 String log  = jsonResponse.optString("log");
                 SQLiteHelper db = new SQLiteHelper(
                         MainActivity.this.getApplicationContext());
                 Journal journal = new Journal(guid, null, null, null, 0, false,
                         null, null);
-                db.updateJournal(journal);
-                MainActivity.this.runOnUiThread(new Runnable() {
+                db.updateJournal(journal);*/
+               MainActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
                         publishProgress(index);
                     }});
