@@ -43,7 +43,7 @@
     <color name="white">#ffffff</color>
 
     <string name="textView_Personnel_text">Credencial:\r\nNombre:</string>
-    <string name="textView_PBIP_text">PBIP I: </string>
+    <string name="textView_PBIP_text">PBIP: </string>
     <string name="textView_HazardousGoods_text">Mercancías Peligrosas: </string>
     <string name="textView_PortSecurity_text">Seguridad Portuaria: </string>
     <string name="title_activity_personnel">Handheld PV2</string>
