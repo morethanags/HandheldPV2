@@ -75,7 +75,7 @@ public class PersonnelFragment extends Fragment {
 
     }
 
-    private void showTraining(String dateString, TextView textView,
+    private void showTraining(String label, String dateString, TextView textView,
                               ImageView imageView) {
         SimpleDateFormat newDateFormat = new SimpleDateFormat("d MMMM yyyy");
         Calendar today = Calendar.getInstance();
@@ -94,7 +94,7 @@ public class PersonnelFragment extends Fragment {
             //Date trainingDate = parseString(dateString);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(parseString(dateString));
-            textView.setText(" " + newDateFormat.format(calendar.getTime()));
+            textView.setText(label+": " + newDateFormat.format(calendar.getTime()));
             calendar.add(Calendar.DATE, 1);
             //Log.d("ultimo dia", newDateFormat.format(parseString(dateString)));
             //Log.d("dia vencido", newDateFormat.format(calendar.getTime()));
@@ -133,16 +133,17 @@ public class PersonnelFragment extends Fragment {
             if(personnel.getPBIPCode()!=null){
                 outputData += "\r\nNúmero Tarjeta PBIP: " + personnel.getPBIPCode() + "";
                 bandPBIPColor.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), personnel.getPBIPColorCode()));
-                //textView_PBIP_Color.setText(personnel.getPBIPColor());
+                textView_PBIP_Color.setText(personnel.getPBIPColor());
                 //imageView_Portrait.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), personnel.getPBIPColorCode()));
             }
 
             textView_Personnel.setText(outputData);
-            showTraining(personnel.getPBIP(), textView_PBIP_date,
+
+            showTraining(getResources().getString(R.string.textView_PBIP_text), personnel.getPBIP(), textView_PBIP_date,
                     imageView_PBIP);
-            showTraining(personnel.getHazardousGoods(),
+            showTraining(getResources().getString(R.string.textView_HazardousGoods_text),personnel.getHazardousGoods(),
                     textView_HazardousGoods_date, imageView_HazardousGoods);
-            showTraining(personnel.getPortSecurity(),
+            showTraining(getResources().getString(R.string.textView_PortSecurity_text),personnel.getPortSecurity(),
                     textView_PortSecurity_date, imageView_PortSecurity);
             byte[] byteArray;
             Bitmap bitmap;
@@ -169,7 +170,7 @@ public class PersonnelFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_personnel,
+        View view = inflater.inflate(R.layout.fragment_personnel_cel,
                 container, false);
         if (getArguments() != null) {
             response = getArguments().getString(ARG_RESPONSE);
