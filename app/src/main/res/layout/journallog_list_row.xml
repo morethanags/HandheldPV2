@@ -14,15 +14,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/time"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:gravity="right"
             android:textSize="18sp" />
+
+
+
     </LinearLayout>
 
     <LinearLayout
@@ -31,19 +26,34 @@
         android:orientation="horizontal" >
 
         <TextView
-            android:id="@+id/door"
+            android:id="@+id/credential"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:textSize="16sp" />
+            android:textSize="18sp" />
+        <!--<TextView
+           android:id="@+id/door"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_gravity="left"
+           android:textSize="18sp" />
+
+      <TextView
+           android:id="@+id/log"
+           android:layout_width="fill_parent"
+           android:layout_height="wrap_content"
+           android:layout_gravity="right"
+           android:gravity="right"
+           android:textSize="16sp" />-->
 
         <TextView
-            android:id="@+id/log"
+            android:id="@+id/time"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:gravity="right"
-            android:textSize="16sp" />
+            android:textSize="18sp" />
+
     </LinearLayout>
 
 </LinearLayout>

@@ -77,17 +77,16 @@ public class EntranceFragment extends Fragment implements SwipeRefreshLayout.OnR
             list = new ArrayList<HashMap<String, String>>();
             for (int i = 0; i < records.size(); i++) {
                 HashMap<String, String> item = new HashMap<String, String>();
-                item.put("personnel", records.get(i).getPersonnel() + "("
-                        + records.get(i).getCredential() + ")");
-                item.put("log", records.get(i).getDescLog());
-                item.put("door", records.get(i).getDoor());
+                item.put("personnel", records.get(i).getPersonnel());
+                item.put("credential", records.get(i).getCredential());
+                //item.put("door", records.get(i).getDoor());
                 String dateString = DateFormat.format("E, MMM dd, h:mm aa",
                         new Date(records.get(i).getTime())).toString();
                 item.put("time", dateString);
                 list.add(item);
             }
-            String[] columns = new String[]{"personnel", "time", "door", "log"};
-            int[] renderTo = new int[]{R.id.personnel, R.id.time, R.id.door, R.id.log};
+            String[] columns = new String[]{"personnel", "time", "credential"};
+            int[] renderTo = new int[]{R.id.personnel, R.id.time, R.id.credential};
 
             ListAdapter listAdapter = new SimpleAdapter(getContext(), list,
                     R.layout.journallog_list_row, columns, renderTo);
