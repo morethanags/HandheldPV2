@@ -133,7 +133,7 @@ public class PersonnelFragment extends Fragment {
             if(personnel.getPBIPCode()!=null){
                 outputData += "\r\nNúmero Tarjeta PBIP: " + personnel.getPBIPCode() + "";
                 bandPBIPColor.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), personnel.getPBIPColorCode()));
-                textView_PBIP_Color.setText(personnel.getPBIPColor());
+                //textView_PBIP_Color.setText(personnel.getPBIPColor());
                 //imageView_Portrait.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), personnel.getPBIPColorCode()));
             }
 
@@ -170,7 +170,7 @@ public class PersonnelFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_personnel_cel,
+        View view = inflater.inflate(R.layout.fragment_personnel,
                 container, false);
         if (getArguments() != null) {
             response = getArguments().getString(ARG_RESPONSE);

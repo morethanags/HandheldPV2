@@ -49,8 +49,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements
-        HandheldFragment.OnHandheldFragmentInteractionListener, EntranceFragment.OnEntranceFragmentInteractionListener, ExitFragment.OnExitFragmentInteractionListener
-         {
+        HandheldFragment.OnHandheldFragmentInteractionListener, EntranceFragment.OnEntranceFragmentInteractionListener, ExitFragment.OnExitFragmentInteractionListener {
     public static final String MIME_TEXT_PLAIN = "text/plain";
     public static final String PREFS_NAME = "HandheldPV2PrefsFile";
     private static long back_pressed;
@@ -60,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private ViewPager mViewPager;
     private NfcAdapter mNfcAdapter;
-             private int journalCount;
+    private int journalCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,15 +132,7 @@ public class MainActivity extends AppCompatActivity implements
     private void handleIntent(Intent intent) {
         String action = intent.getAction();
         if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {
-            Parcelable[] rawMsgs = intent
-                    .getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-            NdefMessage[] msgs;
-            if (rawMsgs != null) {
-                msgs = new NdefMessage[rawMsgs.length];
-                for (int i = 0; i < rawMsgs.length; i++) {
-                    msgs[i] = (NdefMessage) rawMsgs[i];
-                }
-            } else {
+
                 Parcelable parcelable = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                 Tag tag = (Tag) parcelable;
                 byte[] id = tag.getId();
@@ -149,13 +140,12 @@ public class MainActivity extends AppCompatActivity implements
                 Log.d("Internal Code", code);
                 SQLiteHelper db = new SQLiteHelper(getApplicationContext());
                 Personnel personnel = db.getPersonnel(getDec(id));
-                if(personnel!=null){
+                if (personnel != null) {
                     HandheldFragment handheldFragment = ((HandheldFragment) mSectionsPagerAdapter.getItem(0));
                     if (handheldFragment != null) {
                         handheldFragment.setCredentialId(personnel.getPrintedCode());
                     }
-                }
-                else{
+                } else {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
                     alertDialogBuilder.setTitle("PV2 Access Control");
                     alertDialogBuilder.setMessage("Badge no tiene acceso");
@@ -169,8 +159,37 @@ public class MainActivity extends AppCompatActivity implements
                     alertDialogBuilder.create().show();
 
                 }
-            }
         }
+         /* if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
+                NdefMessage ndefMessage = null;
+                Parcelable[] rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+                if ((rawMessages != null) && (rawMessages.length > 0)) {
+                    ndefMessage = (NdefMessage) rawMessages[0];
+                    String result = "";
+                    byte[] payload = ndefMessage.getRecords()[0].getPayload();
+                    String textEncoding = ((payload[0] & 0200) == 0) ? "UTF-8" : "UTF-16";
+                    int languageCodeLength = payload[0] & 0077;
+                    //String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
+                    String text = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
+                    Log.d("Internal Code", text);
+                    HandheldFragment handheldFragment = ((HandheldFragment) mSectionsPagerAdapter.getItem(0));
+                    if (handheldFragment != null) {
+                        handheldFragment.setCredentialId(text);
+                    }
+                }
+            }*/
+
+        /*if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
+            Parcelable parcelable = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            Tag tag = (Tag) parcelable;
+            byte[] id = tag.getId();
+            String code = getDec(id) + "";
+            Log.d("Internal Code", code);
+            HandheldFragment handheldFragment = ((HandheldFragment) mSectionsPagerAdapter.getItem(0));
+            if (handheldFragment != null) {
+                handheldFragment.setCredentialId(code);
+            }
+        }*/
     }
 
     @Override
@@ -185,14 +204,14 @@ public class MainActivity extends AppCompatActivity implements
         if (handheldFragment != null) {
             handheldFragment.setCredentialId("");
         }
-        Log.d("MainActivity","I'm back");
+        Log.d("MainActivity", "I'm back");
         return super.onNavigateUpFromChild(child);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch (id){
+        switch (id) {
            /* case R.id.action_update:
                 updatePersonnel();
                 return true;
@@ -211,7 +230,8 @@ public class MainActivity extends AppCompatActivity implements
 
         return super.onOptionsItemSelected(item);
     }
-    private void receiveJournal(int index){
+
+    private void receiveJournal(int index) {
         if (index == journalCount - 1) {
             progress.dismiss();
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
@@ -230,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private  void sendJournal(){
+    private void sendJournal() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo[] netInfo = connectivityManager.getAllNetworkInfo();
         for (NetworkInfo ni : netInfo) {
@@ -243,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements
                     alertDialogBuilder.setPositiveButton("Ok",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                   dialog.cancel();
+                                    dialog.cancel();
                                 }
                             });
                     alertDialogBuilder.create().show();
@@ -270,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements
                         + "/"
                         + journal.get(i).getGuid();
                 JournalTask journalTask = new JournalTask();
-                journalTask.execute(serverURL, i+"");
+                journalTask.execute(serverURL, i + "");
                 Log.d("Send", serverURL);
             }
         } else {
@@ -316,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements
         dialog.show();*/
     }
 
-    private void refreshJournal(){
+    private void refreshJournal() {
         EntranceFragment entranceFragment = ((EntranceFragment) mSectionsPagerAdapter.getItem(1));
         if (entranceFragment != null) {
             entranceFragment.updateEntrances();
@@ -376,13 +396,19 @@ public class MainActivity extends AppCompatActivity implements
         IntentFilter[] filters = new IntentFilter[1];
         String[][] techList = new String[][]{};
         filters[0] = new IntentFilter();
-        filters[0].addAction(NfcAdapter.ACTION_TAG_DISCOVERED);
         filters[0].addCategory(Intent.CATEGORY_DEFAULT);
-        try {
-            filters[0].addDataType(MIME_TEXT_PLAIN);
-        } catch (IntentFilter.MalformedMimeTypeException e) {
-            throw new RuntimeException("Check your mime type.");
-        }
+
+         /*filters[0].addAction(NfcAdapter.ACTION_TECH_DISCOVERED);
+         String[][] techList = new String[][]{new String[]{NfcA.class.getName()}, new String[]{MifareClassic.class.getName()}, new String[]{NdefFormatable.class.getName()}};*/
+
+         /*filters[0].addAction(NfcAdapter.ACTION_NDEF_DISCOVERED);
+         try {
+             filters[0].addDataType(MIME_TEXT_PLAIN);
+         } catch (IntentFilter.MalformedMimeTypeException e) {
+             throw new RuntimeException("Check your mime type.");
+         }*/
+
+        filters[0].addAction(NfcAdapter.ACTION_TAG_DISCOVERED);
         adapter.enableForegroundDispatch(activity, pendingIntent, filters,
                 techList);
     }
@@ -565,10 +591,11 @@ public class MainActivity extends AppCompatActivity implements
 
         HttpURLConnection urlConnection;
         private String index;
+
         @SuppressWarnings("unchecked")
         protected String doInBackground(String... args) {
-           StringBuilder result = new StringBuilder();
-           try {
+            StringBuilder result = new StringBuilder();
+            try {
                 URL url = new URL(args[0]);
                 //Log.d("Journal URL", url.toString());
                 this.index = args[1];
@@ -597,14 +624,13 @@ public class MainActivity extends AppCompatActivity implements
                         alertDialogBuilder.create().show();
                     }
                 });*/
-            }
-            finally {
+            } finally {
                 urlConnection.disconnect();
             }
             return result.toString();
         }
 
-       protected void onProgressUpdate(String... _progress) {
+        protected void onProgressUpdate(String... _progress) {
             MainActivity.this.receiveJournal(Integer.parseInt(_progress[0]));
         }
 
@@ -618,10 +644,11 @@ public class MainActivity extends AppCompatActivity implements
                 Journal journal = new Journal(guid, null, null, null, 0, false,
                         null, null);
                 db.updateJournal(journal);*/
-               MainActivity.this.runOnUiThread(new Runnable() {
+                MainActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
                         publishProgress(index);
-                    }});
+                    }
+                });
             } catch (Exception e) {
                 Log.d(e.getClass().toString(), e.getMessage());
             }
