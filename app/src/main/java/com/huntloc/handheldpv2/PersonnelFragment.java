@@ -170,7 +170,7 @@ public class PersonnelFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_personnel,
+        View view = inflater.inflate(R.layout.fragment_personnel_cel,
                 container, false);
         if (getArguments() != null) {
             response = getArguments().getString(ARG_RESPONSE);
@@ -218,8 +218,18 @@ public class PersonnelFragment extends Fragment {
     }
     private void addJournal(String credential, String personnel, String door, String log, String descLog) {
         java.util.Date date = new java.util.Date();
+        Log.d("ToString", date.toString());
         SQLiteHelper db = new SQLiteHelper(getContext());
-        //Log.d("Time", date.getTime()+"");
+
+        /*date.setYear(117);
+        date.setMonth(5);
+        date.setDate(3);
+        date.setHours(9);
+        date.setMinutes(40);
+        Log.d("ToString", date.toString());*/
+
+        Log.d("Time", date.getTime()+"");
+
         db.addJournal(new Journal(credential, log, door, date.getTime(), personnel, descLog));
         String descLog1 =  log.contains("Entry") ? "Entrada" : "Salida";
         Toast.makeText(getActivity(), "1 "+descLog1+" Registrada", Toast.LENGTH_LONG)

@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements
             for (int i = 0; i < journal.size(); i++) {
                 String serverURL = getResources().getString(
                         R.string.service_url)
-                        + "/JournalLogService/"
+                        + "/Journal/PostLogOffline/"
                         + journal.get(i).getCredential()
                         + "/"
                         + journal.get(i).getLog()
@@ -349,8 +349,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void updatePersonnel() {
         String serverURL = getResources().getString(R.string.service_url)
-                + "/PBIPPersonnelOfflineService/"
-                + UUID.randomUUID().toString();
+                + "/Access/GetPersonnelOffline/Jetty";
         QueryPersonnelPV2Task personnelTask = new QueryPersonnelPV2Task();
         progress.setMessage(getResources().getString(
                 R.string.action_update_message));
@@ -548,6 +547,7 @@ public class MainActivity extends AppCompatActivity implements
 
                     db.addPersonnel(personnel);
                 }
+                Log.d("countPortrait", jsonArray.length()+"");
                 progress.dismiss();
                 MainActivity.this.runOnUiThread(new Runnable() {
                     public void run() {

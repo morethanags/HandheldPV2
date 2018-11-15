@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Handheld PV2</string>
+    <string name="app_name">Handheld Offline PV2 V2</string>
     <string name="action_update">Actualizar Información</string>
     <string name="action_update_message">Actualizando Información</string>
 
@@ -33,8 +33,8 @@
     <string name="logEntry_id">EntryJetty</string>
     <string name="logExit_id">ExitJetty</string>
 
-    <color name="check">#197F38</color>
-    <color name="warning">#FFCC00</color>
+    <color name="check">#11c147</color>
+    <color name="warning">#ff8330</color>
     <color name="error">#FF3838</color>
 
     <color name="red">#FF3838</color>
